@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Потата</title>
+<link rel="icon" href="mascot.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- ============================================
+     CSS — ПОДАЧА: цвета, шрифты, расположение
+     ============================================ -->
+<style>
+  /* Палитра. Меняешь цвет тут — он меняется на всём сайте */
+  :root {
+    --bg: #121214;          /* графитовый фон */
+    --bg-2: #1b1b1f;        /* карточки чуть светлее */
+    --line: #2a2a31;        /* тонкие линии */
+    --text: #f1ede4;        /* тёплый белый текст */
+    --muted: #9a958b;       /* приглушённый текст */
+    --potato: #e2be6e;      /* картофельный жёлтый, главный акцент */
+    --potato-dark: #b8954a;
+    --cyan: #7fb3b0;        /* приглушённый бирюзовый — для глитча */
+    --rose: #c48a9f;        /* приглушённый розовый — для глитча */
+    --display: "Unbounded", "Arial Black", sans-serif;  /* заголовки */
+    --body: "Manrope", "Segoe UI", Arial, sans-serif;   /* текст */
+    --mono: "JetBrains Mono", "Consolas", monospace;    /* «хакерские» подписи */
+    color-scheme: dark;
+  }
+  /* layout: две колонки на главном экране (текст + маскот), ниже одна колонка; кнопки заказа всегда под рукой */
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body); line-height: 1.5; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 20px; position: relative; }
+
+  /* ---------- КИБЕРПАНК-СЛОИ поверх всего сайта ---------- */
+  /* Строки как на старом мониторе */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);
+  }
+  /* Свечение, которое ходит за курсором (только на компьютере) */
+  .glow {
+    position: fixed; width: 520px; height: 520px; border-radius: 50%;
+    left: 0; top: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(circle, rgba(226,190,110,.09), transparent 65%);
+    transform: translate(-50%, -50%); transition: opacity .3s;
+  }
+
+  /* ---------- Шапка ---------- */
+  header { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; position: relative; z-index: 2; }
+  .logo { font-family: var(--display); font-weight: 900; font-size: 22px; letter-spacing: -0.02em; }
+  .logo span { color: var(--potato); }
+  .badge {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    border: 1px solid var(--potato); color: var(--potato);
+    padding: 6px 12px; border-radius: 4px;
+    box-shadow: 0 0 12px rgba(226,190,110,.25), inset 0 0 8px rgba(226,190,110,.15);
+    animation: flicker 5s linear infinite;
+  }
+  /* Неон, который иногда «моргает» */
+  @keyframes flicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: .35; }
+  }
+
+  /* ---------- Главный экран ---------- */
+  .hero {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; gap: 24px;
+    padding: 32px 0 96px;
+  }
+  .hud {
+    font-family: var(--mono); font-size: 12px; color: var(--cyan); letter-spacing: .06em;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .hud::before { content: "▮ "; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero h1 {
+    font-family: var(--display); font-weight: 900;
+    font-size: clamp(42px, 7.4vw, 96px);
+    line-height: .95; letter-spacing: -0.04em;
+    text-wrap: balance; position: relative;
+    animation: glitch 6s infinite;
+  }
+  .hero h1 .word { display: inline-block; animation: rise .7s cubic-bezier(.2,.9,.3,1.3) both; }
+  .hero h1 .word:nth-child(2) { animation-delay: .08s; }
+  .hero h1 .word:nth-child(3) { animation-delay: .16s; color: var(--potato); }
+  .hero h1 .word:nth-child(4) { animation-delay: .24s; color: var(--potato); }
+  @keyframes rise { from { transform: translateY(30px) rotate(3deg); } to { transform: none; } }
+  /* Глитч: раз в 6 секунд заголовок на долю секунды «расслаивается» по цветам */
+  @keyframes glitch {
+    0%, 92%, 100% { text-shadow: none; transform: none; }
+    93% { text-shadow: -3px 0 var(--rose), 3px 0 var(--cyan); transform: translateX(2px) skewX(-4deg); }
+    95% { text-shadow: 4px 0 var(--rose), -4px 0 var(--cyan); transform: translateX(-3px); }
+    97% { text-shadow: -2px 0 var(--rose), 2px 0 var(--cyan); transform: none; }
+  }
+
+  .hero p { margin-top: 24px; font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 44ch; }
+  .hero p b { color: var(--text); }
+
+  /* Маскот */
+  .mascot { position: relative; justify-self: center; width: min(100%, 440px); aspect-ratio: 1; }
+  .mascot img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    filter: drop-shadow(0 0 14px rgba(226,190,110,.45)) drop-shadow(0 0 40px rgba(226,190,110,.15));
+    animation: hover 4s ease-in-out infinite;
+  }
+  /* Копии маскота для глитч-эффекта: сдвинуты и покрашены в бирюзовый и розовый */
+  .mascot img.g1, .mascot img.g2 { opacity: 0; filter: none; mix-blend-mode: screen; }
+  .mascot img.g1 { animation: slice1 5s infinite, hover 4s ease-in-out infinite; filter: sepia(1) hue-rotate(130deg) saturate(1.2); }
+  .mascot img.g2 { animation: slice2 5s infinite, hover 4s ease-in-out infinite; filter: sepia(1) hue-rotate(280deg) saturate(1.1); }
+  @keyframes hover { 50% { translate: 0 -12px; } }
+  @keyframes slice1 {
+    0%, 88%, 100% { opacity: 0; }
+    89% { opacity: .8; clip-path: inset(20% 0 55% 0); transform: translateX(-10px); }
+    91% { opacity: .8; clip-path: inset(60% 0 15% 0); transform: translateX(8px); }
+    93% { opacity: 0; }
+  }
+  @keyframes slice2 {
+    0%, 89%, 100% { opacity: 0; }
+    90% { opacity: .7; clip-path: inset(40% 0 35% 0); transform: translateX(12px); }
+    92% { opacity: .7; clip-path: inset(5% 0 75% 0); transform: translateX(-8px); }
+    94% { opacity: 0; }
+  }
+  .mascot:hover img.main { animation: hover 4s ease-in-out infinite, shake .3s linear 2; }
+  @keyframes shake { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+
+  /* HUD-рамка вокруг маскота: уголки и «системные» подписи */
+  .corner { position: absolute; width: 26px; height: 26px; border: 2px solid var(--potato); opacity: .7; }
+  .corner.tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+  .corner.tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+  .corner.bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+  .corner.br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+  .tag {
+    position: absolute; font-family: var(--mono); font-size: 11px; letter-spacing: .05em;
+    color: var(--cyan); text-transform: uppercase; background: var(--bg); padding: 2px 6px;
+    border: 1px solid var(--line); white-space: nowrap;
+  }
+  .tag.t1 { top: 14%; right: -6px; }
+  .tag.t2 { bottom: 16%; left: -6px; color: var(--rose); }
+  .bar { display: inline-block; width: 60px; height: 6px; background: var(--line); vertical-align: middle; margin-left: 6px; position: relative; overflow: hidden; }
+  .bar::after { content: ""; position: absolute; inset: 0; width: 98%; background: var(--rose); animation: fill 2.5s ease-in-out infinite alternate; }
+  @keyframes fill { from { width: 70%; } to { width: 99%; } }
+
+  /* Неоновая сетка-«пол» под главным экраном */
+  .grid-floor {
+    position: absolute; left: -20vw; right: -20vw; bottom: -30px; height: 220px; z-index: -1;
+    background:
+      linear-gradient(to top, transparent, var(--bg) 85%),
+      repeating-linear-gradient(90deg, rgba(226,190,110,.16) 0 1px, transparent 1px 60px),
+      repeating-linear-gradient(0deg, rgba(226,190,110,.16) 0 1px, transparent 1px 40px);
+    transform: perspective(300px) rotateX(55deg); transform-origin: bottom;
+    animation: grid-move 2.5s linear infinite;
+    mask-image: linear-gradient(to top, #000 30%, transparent);
+    -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
+  }
+  @keyframes grid-move { to { background-position: 0 0, 0 0, 0 40px; } }
+
+  /* ---------- Кнопки заказа ---------- */
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+  .btn {
+    position: relative; overflow: hidden;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--body); font-weight: 800; font-size: 16px;
+    padding: 16px 24px; border-radius: 12px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--bg-2); color: var(--text);
+    transition: transform .25s cubic-bezier(.2,.9,.3,1.6), background .2s, border-color .2s, box-shadow .2s;
+  }
+  /* Полоска света, пробегающая по кнопке при наведении */
+  .btn::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.18), transparent);
+    transform: skewX(-20deg); transition: left .5s;
+  }
+  .btn:hover::before { left: 130%; }
+  .btn:hover { transform: translateY(-3px) scale(1.04); border-color: var(--potato); box-shadow: 0 0 18px rgba(226,190,110,.25); }
+  .btn:active { transform: scale(.96); }
+  .btn:focus-visible { outline: 2px solid var(--potato); outline-offset: 3px; }
+  .btn.main { background: var(--potato); color: #1a1508; border-color: var(--potato); }
+  .btn.main:hover { background: #ecca7d; }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+
+  /* ---------- Бегущая строка ---------- */
+  .marquee { border-block: 1px solid var(--line); overflow: hidden; padding: 16px 0; background: var(--bg-2); position: relative; z-index: 1; transform: rotate(-1.5deg); margin: 0 -10px; }
+  .marquee-track {
+    display: flex; gap: 48px; width: max-content; animation: run 28s linear infinite;
+    font-family: var(--display); font-weight: 800; font-size: 20px; text-transform: uppercase; white-space: nowrap;
+  }
+  .marquee-track span:nth-child(even) { color: var(--potato); }
+  .marquee-track span::after { content: "  ✦"; color: var(--cyan); margin-left: 48px; }
+  @keyframes run { to { transform: translateX(-50%); } }
+
+  /* ---------- Секции ---------- */
+  section { padding: 88px 0; position: relative; z-index: 1; }
+  .label { font-family: var(--mono); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--potato); margin-bottom: 14px; }
+  .label::before { content: "// "; color: var(--cyan); }
+  h2 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 5vw, 54px); line-height: 1.02; letter-spacing: -0.03em; text-wrap: balance; max-width: 16ch; }
+  .sub { color: var(--muted); margin-top: 14px; max-width: 52ch; font-size: 18px; }
+
+  /* Меню-заглушка: «засекреченные» карточки */
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 40px; }
+  .card {
+    position: relative; overflow: hidden;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px; min-height: 190px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transition: transform .3s, border-color .3s, box-shadow .3s;
+  }
+  /* Луч «сканера», который ездит по карточке */
+  .card::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 40px; top: -40px;
+    background: linear-gradient(to bottom, transparent, rgba(127,179,176,.12), transparent);
+    animation: scan 3.5s linear infinite;
+  }
+  .card:nth-child(2)::after { animation-delay: 1.1s; }
+  .card:nth-child(3)::after { animation-delay: 2.2s; }
+  @keyframes scan { to { top: 110%; } }
+  .card:hover { transform: translateY(-4px) rotate(-1deg); border-color: var(--potato-dark); box-shadow: 0 0 22px rgba(226,190,110,.12); }
+  .card .q { font-family: var(--mono); font-size: 13px; color: var(--rose); letter-spacing: .08em; }
+  .card .redact { display: inline-block; background: var(--text); color: transparent; border-radius: 2px; user-select: none; }
+  .card h3 { font-size: 18px; font-weight: 800; }
+  .card p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* Где нас найти */
+  .where { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-top: 40px; }
+  .where .box { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 28px; position: relative; }
+  .where .big { font-family: var(--display); font-weight: 800; font-size: clamp(24px, 3.4vw, 36px); line-height: 1.1; letter-spacing: -0.02em; }
+  .where .box p { color: var(--muted); margin-top: 10px; }
+  .where .coords { font-family: var(--mono); font-size: 12px; color: var(--cyan); margin-top: 18px; letter-spacing: .05em; }
+  .where .mom { background: var(--potato); color: #1a1508; border-color: var(--potato); display: flex; align-items: flex-end; overflow: hidden; }
+  .where .mom .big { font-size: clamp(22px, 3vw, 30px); position: relative; z-index: 1; }
+  .where .mom img { position: absolute; right: -30px; top: -20px; width: 160px; opacity: .22; filter: brightness(0); transform: rotate(12deg); }
+
+  /* ---------- Подвал ---------- */
+  footer { border-top: 1px solid var(--line); padding: 32px 0 110px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
+  footer .mono { font-family: var(--mono); font-size: 12px; }
+
+  /* ---------- Плавающая панель заказа на телефоне ---------- */
+  .dock {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+    display: flex; gap: 8px; padding: 8px;
+    background: rgba(27,27,31,.85); backdrop-filter: blur(12px);
+    border: 1px solid var(--line); border-radius: 16px; z-index: 40;
+    box-shadow: 0 0 20px rgba(226,190,110,.12);
+  }
+  .dock .btn { padding: 12px 16px; font-size: 14px; }
+
+  /* Всплывашка «клик засчитан» */
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translate(-50%, -200%); opacity: 0;
+    background: var(--bg-2); color: var(--potato); border: 1px solid var(--potato);
+    font-family: var(--mono); font-weight: 700; font-size: 13px;
+    padding: 10px 18px; border-radius: 6px; z-index: 60;
+    box-shadow: 0 0 18px rgba(226,190,110,.3);
+    transition: transform .35s cubic-bezier(.2,.9,.3,1.4);
+  }
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+  /* Адаптив под телефон */
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; padding-top: 8px; }
+    .mascot { order: -1; width: min(78%, 320px); }
+    .hero .cta { display: none; }   /* на телефоне кнопки живут в нижней панели */
+    .where { grid-template-columns: 1fr; }
+    .glow { display: none; }
+    .tag.t1 { right: -14px; } .tag.t2 { left: -14px; }
+  }
+  @media (min-width: 761px) { .dock { display: none; } footer { padding-bottom: 32px; } }
+
+  /* Уважаем тех, кто отключил анимации в системе */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .mascot img.g1, .mascot img.g2 { display: none; }
+  }
+</style>
+</head>
+
+<!-- ============================================
+     HTML — СОДЕРЖИМОЕ: что лежит на странице
+     ============================================ -->
+<body>
+<div class="glow" id="glow" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">По<span>тата</span></div>
+    <div class="badge">Скоро открытие</div>
+  </header>
+
+  <!-- Главный экран -->
+  <div class="hero">
+    <div>
+      <div class="hud">Сахалин · фуд-корт · система голода активна</div>
+      <h1>
+        <span class="word">Твоя</span>
+        <span class="word">диета</span>
+        <span class="word">нас не</span>
+        <span class="word">касается</span>
+      </h1>
+      <p>Печёная картошка с начинками, после которой <b>совесть молчит, а желудок аплодирует.</b> Фуд-корт ТЦ «Мегаберёзка».</p>
+
+      <!-- Кнопки заказа. data-channel — метка для таблицы: какой кнопкой воспользовались -->
+      <div class="cta">
+        <a class="btn main" href="tel:+70000000000" data-channel="Телефон">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+          Позвонить
+        </a>
+        <a class="btn" href="https://t.me/potata_placeholder" target="_blank" rel="noopener" data-channel="Telegram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.1 13 1.2 11.4c-1-.3-1-1 .2-1.5L20.6 2.6c.9-.3 1.6.2 1.3 1.7Z"/></svg>
+          Telegram
+        </a>
+        <a class="btn" href="https://instagram.com/potata_placeholder" target="_blank" rel="noopener" data-channel="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          Instagram
+        </a>
+      </div>
+    </div>
+
+    <!-- Маскот: основная картинка + две копии для глитча + HUD-рамка -->
+    <div class="mascot">
+      <img class="main" src="mascot.png" alt="Маскот Потаты ест картошку">
+      <img class="g1" src="mascot.png" alt="" aria-hidden="true">
+      <img class="g2" src="mascot.png" alt="" aria-hidden="true">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <span class="tag t1">калории: не считаем</span>
+      <span class="tag t2">голод <span class="bar"></span></span>
+    </div>
+
+    <div class="grid-floor" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- Бегущая строка. Текст продублирован, чтобы прокрутка шла бесконечно без рывка -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Пюре — для слабых</span><span>Мам, я в Мегаберёзке</span><span>Это не перекус, это потато-терапия</span><span>Пока ты думаешь — она остывает</span><span>Дед бы одобрил</span><span>Фуд-корт больше не будет прежним</span>
+    <span>Пюре — для слабых</span><span>Мам, я в Мегаберёзке</span><span>Это не перекус, это потато-терапия</span><span>Пока ты думаешь — она остывает</span><span>Дед бы одобрил</span><span>Фуд-корт больше не будет прежним</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- Меню (пока заглушка) -->
+  <section id="menu">
+    <div class="label">Меню</div>
+    <h2>Меню ещё варится</h2>
+    <p class="sub">Мы честно дегустируем каждую начинку сами. Страдаем за вас. Скоро покажем, что прошло отбор.</p>
+    <div class="menu-grid">
+      <div class="card"><div class="q">ФАЙЛ_01 · ЗАСЕКРЕЧЕНО</div><div><h3>Секретная <span class="redact">сырная</span></h3><p>Утверждается на совете картофелин</p></div></div>
+      <div class="card"><div class="q">ФАЙЛ_02 · ЗАСЕКРЕЧЕНО</div><div><h3>Секретная <span class="redact">мясная</span></h3><p>Слишком сыр, чтобы показывать</p></div></div>
+      <div class="card"><div class="q">ФАЙЛ_03 · ЗАСЕКРЕЧЕНО</div><div><h3>Секретная <span class="redact">острая</span></h3><p>Вкус засекречен до открытия</p></div></div>
+    </div>
+  </section>
+
+  <!-- Где нас найти -->
+  <section id="where">
+    <div class="label">Где нас найти</div>
+    <h2>Приходи голодным</h2>
+    <div class="where">
+      <div class="box">
+        <div class="big">ТЦ «Мегаберёзка»,<br>фуд-корт</div>
+        <p>Южно-Сахалинск. Ищи по запаху печёной картошки, не промахнёшься.</p>
+        <div class="coords">&gt; цель обнаружена · дистанция до счастья: 1 укус</div>
+      </div>
+      <div class="box mom">
+        <img src="mascot.png" alt="" aria-hidden="true">
+        <div class="big">«Мам, я в Мегаберёзке. Ем картошку»</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>© Потата, 2026</div>
+    <div class="mono">// картошка с начинками · Южно-Сахалинск</div>
+  </footer>
+</div>
+
+<!-- Нижняя панель заказа (видна только на телефоне) -->
+<nav class="dock" aria-label="Заказать">
+  <a class="btn main" href="tel:+70000000000" data-channel="Телефон">Позвонить</a>
+  <a class="btn" href="https://t.me/potata_placeholder" target="_blank" rel="noopener" data-channel="Telegram">TG</a>
+  <a class="btn" href="https://instagram.com/potata_placeholder" target="_blank" rel="noopener" data-channel="Instagram">Insta</a>
+</nav>
+
+<div class="toast" id="toast">Клик засчитан</div>
+
+<!-- ============================================
+     JavaScript — ЛОГИКА: что происходит при нажатии
+     ============================================ -->
+<script>
+  // Сюда вставим ссылку на Google Таблицу, когда настроим её (следующий этап).
+  // Пока пусто — клики не отправляются, только показывается всплывашка.
+  const SHEET_URL = "";
+
+  // Определяем, с чего зашёл человек: телефон или компьютер
+  function device() {
+    return /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "Телефон" : "Компьютер";
+  }
+
+  // Показываем всплывашку
+  function showToast(text) {
+    const t = document.getElementById("toast");
+    t.textContent = text;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  // Главная функция: записать клик
+  function track(channel) {
+    const row = {
+      channel: channel,              // какая кнопка
+      device: device(),              // телефон или комп
+      time: new Date().toISOString() // когда
+    };
+    if (SHEET_URL) {
+      try {
+        fetch(SHEET_URL, { method: "POST", mode: "no-cors", keepalive: true, body: JSON.stringify(row) });
+      } catch (e) { /* не получилось — не страшно, заказ важнее */ }
+    }
+    showToast("> клик засчитан: " + channel);
+  }
+
+  // Вешаем «слушателя» на все кнопки с меткой data-channel
+  document.querySelectorAll("[data-channel]").forEach(btn => {
+    btn.addEventListener("click", () => track(btn.dataset.channel));
+  });
+
+  // Свечение за курсором
+  const glow = document.getElementById("glow");
+  window.addEventListener("pointermove", e => {
+    glow.style.left = e.clientX + "px";
+    glow.style.top = e.clientY + "px";
+  });
+</script>
+</body>
+</html>
